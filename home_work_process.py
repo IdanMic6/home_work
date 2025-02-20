@@ -1,10 +1,14 @@
 import os 
 import multiprocessing
+import time
 
-def print_numbers(num):
+
+def print_numbers(num, queue):
     try:
-        for i in range(num + 1):
+         queue.put(num)
+         for i in range(num + 1):
             print(i)
+           
     except ValueError as e:
         print("Something went wrong: " + str(e) + ". Please enter a valid integer.")  # Error message
 
@@ -13,9 +17,16 @@ def main():
     
     try:
         num = int(input("Enter a valid number: "))  # Requesting a number from the user in the main process
-        process = multiprocessing.Process(target=print_numbers, args=(num,))  # argument
+        queue = multiprocessing.Queue() #created a queue 
+
+        process = multiprocessing.Process(target=print_numbers, args=(num, queue))
         process.start()
+        time.sleep(10)
         process.join()
+        return_from_process = queue.get()
+        print("The process returned " + str(return_from_process))
+        print("Done")
+        
     except ValueError as e:
         print("Something went wrong: " + str(e) + ". Please enter a valid integer.")  # Error message for invalid input
 
